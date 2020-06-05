@@ -9,8 +9,12 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.widget.addTextChangedListener
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.StringBuilder
+import java.math.BigInteger
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,20 +42,39 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // fab takes user input and generates + displays 'hash'
-        floatingActionButton.setOnClickListener {
-                val hashedVal = inputFld.hashCode()
-                val randomStr = (1..len)
-                    .map { i -> kotlin.random.Random.nextInt(0, poolOfChars.size) }
-                    .map(poolOfChars::get)
-                    .joinToString("")
 
-                resultTextView.text = "$hashedVal$randomStr"
-                resultTextView.visibility = View.VISIBLE
-                floatingActionButton.isEnabled = false
-        } // fab method
+        // fab takes user input and generates + displays 'hash'
+//        floatingActionButton.setOnClickListener {
+//                var hashedVal = inputFld.hashCode()
+//
+//                val randomStr = (1..len)
+//                    .map { i -> kotlin.random.Random.nextInt(0, poolOfChars.size) }
+//                    .map(poolOfChars::get)
+//                    .joinToString("")
+//                resultTextView.text = "$randomStr${hashedVal * 7}"
+//                resultTextView.visibility = View.VISIBLE
+//                floatingActionButton.isEnabled = false
+//        } // fab method
+
+        floatingActionButton.setOnClickListener {
+            val uInput = inputFld.toString()
+            val md: MessageDigest = MessageDigest.getInstance("SHA-256")
+            val hashInBytes = md.digest(uInput.toByteArray(StandardCharsets.UTF_8))
+
+            val sb = StringBuilder()
+            for (b: Byte in hashInBytes) {
+                sb.append(String.format("%02x", b))
+            }
+            resultTextView.text = sb.toString()
+            resultTextView.visibility = View.VISIBLE
+            floatingActionButton.isEnabled = false
+        }
+
+
 
     } // on create
+
+
 
     // clear input field and display text
     fun refresh() {
@@ -86,4 +109,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
 } // class
+
+
